@@ -1,7 +1,7 @@
 use std::{
     any::Any,
     cell::OnceCell,
-    path::{Path, PathBuf},
+    path::PathBuf,
     sync::Arc,
 };
 
@@ -14,7 +14,7 @@ use jj_lib::{
     repo_path::RepoPathBuf,
     store::Store,
     working_copy::{
-        CheckoutError, CheckoutStats, LockedWorkingCopy, ResetError, SnapshotError,
+        CheckoutOptions, CheckoutError, CheckoutStats, LockedWorkingCopy, ResetError, SnapshotError,
         SnapshotOptions, WorkingCopy, WorkingCopyFactory, WorkingCopyStateError,
     },
 };
@@ -165,7 +165,7 @@ impl CultivateWorkingCopy {
         DaemonLock::new()
     }
 
-    fn snapshot(&mut self, _options: SnapshotOptions) -> TreeState {
+    fn snapshot(&mut self, _options: &SnapshotOptions) -> TreeState {
         let tree_state = self
             .client
             .snapshot(SnapshotReq {
@@ -198,10 +198,6 @@ impl WorkingCopy for CultivateWorkingCopy {
 
     fn name(&self) -> &str {
         Self::name()
-    }
-
-    fn path(&self) -> &Path {
-        &self.working_copy_path
     }
 
     fn workspace_id(&self) -> &WorkspaceId {
@@ -270,13 +266,17 @@ impl LockedWorkingCopy for LockedCultivateWorkingCopy {
         todo!()
     }
 
-    fn snapshot(&mut self, options: SnapshotOptions) -> Result<MergedTreeId, SnapshotError> {
+    fn snapshot(&mut self, options: &SnapshotOptions) -> Result<MergedTreeId, SnapshotError> {
         let tree_state = self.wc.snapshot(options);
         Ok(tree_state.tree_id)
     }
 
-    fn check_out(&mut self, commit: &Commit) -> Result<CheckoutStats, CheckoutError> {
+    fn check_out(&mut self, commit: &Commit, _options: &CheckoutOptions) -> Result<CheckoutStats, CheckoutError> {
         let _new_tree = commit.tree()?;
+        todo!()
+    }
+
+    fn rename_workspace(&mut self, _new_workspace_id: WorkspaceId) {
         todo!()
     }
 
@@ -291,6 +291,7 @@ impl LockedWorkingCopy for LockedCultivateWorkingCopy {
     fn set_sparse_patterns(
         &mut self,
         _new_sparse_patterns: Vec<RepoPathBuf>,
+        _options: &CheckoutOptions,
     ) -> Result<CheckoutStats, CheckoutError> {
         todo!()
     }

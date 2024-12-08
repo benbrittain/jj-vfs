@@ -98,7 +98,7 @@ impl Backend for CultivateBackend {
         Ok(file_from_proto(proto))
     }
 
-    fn write_file(&self, _path: &RepoPath, contents: &mut dyn Read) -> BackendResult<FileId> {
+    async fn write_file(&self, _path: &RepoPath, contents: &mut (dyn Read + Send)) -> BackendResult<FileId> {
         let proto = file_to_proto(contents);
         let id = self.client.write_file(proto).unwrap();
         let id = id.into_inner();
@@ -114,7 +114,7 @@ impl Backend for CultivateBackend {
         Ok(symlink_from_proto(proto))
     }
 
-    fn write_symlink(&self, _path: &RepoPath, target: &str) -> BackendResult<SymlinkId> {
+    async fn write_symlink(&self, _path: &RepoPath, target: &str) -> BackendResult<SymlinkId> {
         let proto = symlink_to_proto(target);
         let id = self.client.write_symlink(proto).unwrap();
         let id = id.into_inner();
@@ -133,7 +133,7 @@ impl Backend for CultivateBackend {
     }
 
     #[tracing::instrument]
-    fn write_tree(&self, _path: &RepoPath, tree: &Tree) -> BackendResult<TreeId> {
+    async fn write_tree(&self, _path: &RepoPath, tree: &Tree) -> BackendResult<TreeId> {
         tracing::error!(tree = ?tree);
         let proto = tree_to_proto(tree);
         let id = self.client.write_tree(proto).unwrap();
@@ -164,7 +164,7 @@ impl Backend for CultivateBackend {
         Ok(commit_from_proto(proto))
     }
 
-    fn write_commit(
+    async fn write_commit(
         &self,
         commit: Commit,
         sign_with: Option<&mut SigningFn>,
@@ -189,9 +189,9 @@ impl Backend for CultivateBackend {
 
     fn get_copy_records(
         &self,
-        _paths: &[RepoPathBuf],
-        _roots: &[CommitId],
-        _heads: &[CommitId],
+        _paths: Option<&[RepoPathBuf]>,
+        _roots: &CommitId,
+        _heads: &CommitId,
     ) -> BackendResult<BoxStream<BackendResult<CopyRecord>>> {
         todo!()
     }
@@ -309,7 +309,7 @@ fn tree_to_proto(tree: &Tree) -> proto::jj_interface::Tree {
     let mut proto = proto::jj_interface::Tree::default();
     for entry in tree.entries() {
         proto.entries.push(proto::jj_interface::tree::Entry {
-            name: entry.name().as_str().to_owned(),
+            name: entry.name().as_internal_str().to_owned(),
             value: Some(tree_value_to_proto(entry.value())),
         });
     }
