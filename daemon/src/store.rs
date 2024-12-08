@@ -10,7 +10,7 @@ pub enum TreeEntry {
 
 #[derive(Clone, Debug, Default)]
 pub struct Tree {
-    pub _entries: Vec<(String, TreeEntry)>
+    pub _entries: Vec<(String, TreeEntry)>,
 }
 
 #[derive(Clone, Debug, Default)]
@@ -26,13 +26,11 @@ pub struct File {
 
 /// Stores mount-agnostic information like Trees or Commits. Unaware of filesystem information.
 #[derive(Clone, Debug)]
-pub struct Store {
-}
+pub struct Store {}
 
 impl Store {
     pub fn new() -> Self {
-        Store {
-        }
+        Store {}
     }
 
     pub async fn get_tree(&self, _id: Id) -> Option<Tree> {

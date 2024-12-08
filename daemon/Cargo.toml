@@ -31,3 +31,4 @@ tempdir = "0.3.7"
 walkdir = "2.5.0"
 tracing-test = "0.2.4"
 async-trait.workspace = true
+rand = "0.8.5"

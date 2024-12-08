@@ -1,14 +1,17 @@
-use tonic::transport::Server;
+use tonic::transport::Server as GrpcServer;
 use tracing::info;
 
-mod store;
 mod service;
+mod store;
+mod vfs;
+mod vfs_mgr;
+
+use vfs_mgr::*;
 
 #[tokio::main]
 async fn main() -> Result<(), anyhow::Error> {
     let addr = "[::1]:10000".parse()?;
 
-    // fuser uses logs, enable for that
     tracing_log::LogTracer::init()?;
 
     let subscriber = tracing_subscriber::fmt()
@@ -24,7 +27,12 @@ async fn main() -> Result<(), anyhow::Error> {
 
     info!("daemon started");
 
-    let jj_svc = service::JujutsuService::new();
+    let mut vfs_mgr = VfsManager::new(VfsManagerConfig {
+        min_nfs_port: 12000,
+        max_nfs_port: 12010,
+    });
+
+    let jj_svc = service::JujutsuService::new(vfs_mgr.handle());
 
     let _store = store::Store::new();
 
@@ -33,11 +41,18 @@ async fn main() -> Result<(), anyhow::Error> {
         .build()?;
 
     info!("Serving jj gRPC interface");
-    Server::builder()
+    let grpc_fut = GrpcServer::builder()
         .add_service(reflection_svc)
         .add_service(jj_svc)
-        .serve(addr)
-        .await?;
+        .serve(addr);
 
-    Ok(())
+    let nfs_fut = vfs_mgr.serve();
+    tokio::select! {
+        ret = nfs_fut => {
+            panic!("NFS: {:?}", ret );
+        }
+        ret = grpc_fut => {
+            panic!("GRPC: {:?}", ret );
+        }
+    }
 }

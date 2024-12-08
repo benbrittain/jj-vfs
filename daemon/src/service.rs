@@ -3,12 +3,17 @@ use proto::jj_interface::*;
 use tonic::{Request, Response, Status};
 use tracing::info;
 
-#[derive(Debug)]
-pub struct JujutsuService {}
+use crate::vfs_mgr::VfsManagerHandle;
+
+pub struct JujutsuService {
+    vfs_handle: VfsManagerHandle,
+}
 
 impl JujutsuService {
-    pub fn new() -> jujutsu_interface_server::JujutsuInterfaceServer<Self> {
-        jujutsu_interface_server::JujutsuInterfaceServer::new(JujutsuService {})
+    pub fn new(
+        vfs_handle: VfsManagerHandle,
+    ) -> jujutsu_interface_server::JujutsuInterfaceServer<Self> {
+        jujutsu_interface_server::JujutsuInterfaceServer::new(JujutsuService { vfs_handle })
     }
 }
 
@@ -21,7 +26,9 @@ impl jujutsu_interface_server::JujutsuInterface for JujutsuService {
     ) -> Result<Response<InitializeReply>, Status> {
         let req = request.into_inner();
         info!("Initializing a new repo at {}", req.path);
-        todo!();
+        // TODO: This needs to handle the error
+        let _resp = self.vfs_handle.bind();
+        Ok(Response::new(InitializeReply {}))
     }
 
     #[tracing::instrument(skip(self))]
