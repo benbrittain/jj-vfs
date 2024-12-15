@@ -285,6 +285,7 @@ dependencies = [
  "cc",
  "cfg-if",
  "constant_time_eq",
+ "digest",
 ]
 
 [[package]]
@@ -655,6 +656,8 @@ dependencies = [
  "hex",
  "insta",
  "itertools 0.12.1",
+ "jj-lib",
+ "jj-lib-proc-macros",
  "libc",
  "nfsserve",
  "prost",

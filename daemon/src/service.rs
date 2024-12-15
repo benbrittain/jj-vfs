@@ -3,17 +3,21 @@ use proto::jj_interface::*;
 use tonic::{Request, Response, Status};
 use tracing::info;
 
-use crate::vfs_mgr::VfsManagerHandle;
+use crate::{store::Store, vfs_mgr::VfsManagerHandle};
 
 pub struct JujutsuService {
     vfs_handle: VfsManagerHandle,
+    store: Store,
 }
 
 impl JujutsuService {
     pub fn new(
         vfs_handle: VfsManagerHandle,
     ) -> jujutsu_interface_server::JujutsuInterfaceServer<Self> {
-        jujutsu_interface_server::JujutsuInterfaceServer::new(JujutsuService { vfs_handle })
+        jujutsu_interface_server::JujutsuInterfaceServer::new(JujutsuService {
+            vfs_handle,
+            store: Store::new(),
+        })
     }
 }
 
@@ -74,7 +78,9 @@ impl jujutsu_interface_server::JujutsuInterface for JujutsuService {
         &self,
         _request: Request<GetEmptyTreeIdReq>,
     ) -> Result<Response<TreeId>, Status> {
-        todo!()
+        Ok(Response::new(TreeId {
+            tree_id: b"00000000".to_vec(),
+        }))
     }
 
     #[tracing::instrument(skip(self))]
@@ -112,7 +118,15 @@ impl jujutsu_interface_server::JujutsuInterface for JujutsuService {
     }
 
     #[tracing::instrument(skip(self))]
-    async fn write_tree(&self, _request: Request<Tree>) -> Result<Response<TreeId>, Status> {
+    async fn write_tree(&self, request: Request<Tree>) -> Result<Response<TreeId>, Status> {
+        let tree = request.into_inner();
+        let tree_id = blake3::hash(&tree.encode_to_vec());
+        //self.trees.insert(
+        //    TreeId {
+        //        tree_id: tree_id.to_hex().as_bytes().to_vec(),
+        //    },
+        //    tree,
+        //);
         todo!()
     }
 

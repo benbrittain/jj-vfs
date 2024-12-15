@@ -9,6 +9,8 @@ documentation.workspace = true
 [dependencies]
 tonic.workspace = true
 tokio.workspace = true
+jj-lib.workspace = true
+jj-lib-proc-macros.workspace = true
 tokio-stream.workspace = true
 proto = { path = "../proto" }
 blake3.workspace = true

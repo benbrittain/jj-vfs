@@ -1,9 +1,4 @@
-use std::{
-    any::Any,
-    cell::OnceCell,
-    path::PathBuf,
-    sync::Arc,
-};
+use std::{any::Any, cell::OnceCell, path::PathBuf, sync::Arc};
 
 use jj_lib::{
     backend::{MergedTreeId, TreeId},
@@ -14,8 +9,8 @@ use jj_lib::{
     repo_path::RepoPathBuf,
     store::Store,
     working_copy::{
-        CheckoutOptions, CheckoutError, CheckoutStats, LockedWorkingCopy, ResetError, SnapshotError,
-        SnapshotOptions, WorkingCopy, WorkingCopyFactory, WorkingCopyStateError,
+        CheckoutError, CheckoutOptions, CheckoutStats, LockedWorkingCopy, ResetError,
+        SnapshotError, SnapshotOptions, WorkingCopy, WorkingCopyFactory, WorkingCopyStateError,
     },
 };
 use proto::jj_interface::{GetCheckoutStateReq, GetTreeStateReq, SnapshotReq};
@@ -271,7 +266,11 @@ impl LockedWorkingCopy for LockedCultivateWorkingCopy {
         Ok(tree_state.tree_id)
     }
 
-    fn check_out(&mut self, commit: &Commit, _options: &CheckoutOptions) -> Result<CheckoutStats, CheckoutError> {
+    fn check_out(
+        &mut self,
+        commit: &Commit,
+        _options: &CheckoutOptions,
+    ) -> Result<CheckoutStats, CheckoutError> {
         let _new_tree = commit.tree()?;
         todo!()
     }

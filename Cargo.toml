@@ -10,9 +10,10 @@ documentation = "https://thelastyak.com/cultivate"
 
 [workspace.dependencies]
 async-trait = "0.1.83"
-blake3 = "1.5.4"
+blake3 = { version = "1.5.4", features = ["traits-preview"] }
 digest = "0.10"
 jj-lib = {version = "0.24", default-features = true}
+jj-lib-proc-macros = {version = "0.24", default-features = true}
 jj-cli = "0.24"
 tonic = "0.11.0"
 prost = "0.12"

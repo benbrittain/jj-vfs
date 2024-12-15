@@ -98,7 +98,11 @@ impl Backend for CultivateBackend {
         Ok(file_from_proto(proto))
     }
 
-    async fn write_file(&self, _path: &RepoPath, contents: &mut (dyn Read + Send)) -> BackendResult<FileId> {
+    async fn write_file(
+        &self,
+        _path: &RepoPath,
+        contents: &mut (dyn Read + Send),
+    ) -> BackendResult<FileId> {
         let proto = file_to_proto(contents);
         let id = self.client.write_file(proto).unwrap();
         let id = id.into_inner();

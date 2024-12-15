@@ -1,6 +1,7 @@
 use tonic::transport::Server as GrpcServer;
 use tracing::info;
 
+mod hash;
 mod service;
 mod store;
 mod vfs;
