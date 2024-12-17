@@ -6,7 +6,7 @@ use std::{
 };
 
 use async_trait::async_trait;
-use futures::stream::BoxStream;
+use futures::stream::{self, BoxStream};
 use jj_lib::{
     backend::{
         make_root_commit, Backend, BackendError, BackendInitError, BackendResult, ChangeId, Commit,
@@ -153,6 +153,7 @@ impl Backend for CultivateBackend {
         todo!("Support conflict")
     }
 
+    #[tracing::instrument]
     async fn read_commit(&self, id: &CommitId) -> BackendResult<Commit> {
         if *id == self.root_commit_id {
             return Ok(make_root_commit(
@@ -168,6 +169,7 @@ impl Backend for CultivateBackend {
         Ok(commit_from_proto(proto))
     }
 
+    #[tracing::instrument(skip(sign_with))]
     async fn write_commit(
         &self,
         commit: Commit,
@@ -188,16 +190,17 @@ impl Backend for CultivateBackend {
     }
 
     fn gc(&self, _index: &dyn Index, _keep_newer: SystemTime) -> BackendResult<()> {
-        todo!()
+        Ok(())
     }
 
+    #[tracing::instrument]
     fn get_copy_records(
         &self,
         _paths: Option<&[RepoPathBuf]>,
         _roots: &CommitId,
         _heads: &CommitId,
     ) -> BackendResult<BoxStream<BackendResult<CopyRecord>>> {
-        todo!()
+        Ok(Box::pin(stream::empty()))
     }
 }
 

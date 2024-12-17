@@ -660,6 +660,7 @@ dependencies = [
  "jj-lib-proc-macros",
  "libc",
  "nfsserve",
+ "parking_lot",
  "prost",
  "proto",
  "rand 0.8.5",

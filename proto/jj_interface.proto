@@ -15,8 +15,6 @@ service JujutsuInterface {
   rpc Snapshot(SnapshotReq) returns (SnapshotReply) {}
 
   // Store related calls
-  rpc Concurrency(ConcurrencyRequest) returns (ConcurrencyReply) {}
-
   rpc GetEmptyTreeId(GetEmptyTreeIdReq) returns (TreeId) {}
 
   rpc WriteTree(Tree) returns (TreeId) {}
