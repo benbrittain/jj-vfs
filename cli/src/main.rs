@@ -1,3 +1,5 @@
+#![deny(warnings)]
+
 use jj_cli::{
     cli_util::{CliRunner, CommandHelper},
     command_error::CommandError,

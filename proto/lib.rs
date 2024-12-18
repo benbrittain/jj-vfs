@@ -1,3 +1,5 @@
+#![deny(warnings)]
+
 pub mod jj_interface {
     tonic::include_proto!("jj_interface");
 }

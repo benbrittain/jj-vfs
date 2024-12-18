@@ -12,7 +12,7 @@ documentation = "https://thelastyak.com/cultivate"
 anyhow = "1"
 async-trait = "0.1.83"
 blake3 = { version = "1.5.4", features = ["traits-preview"] }
-clap = "4.5.0"
+clap = { version = "4.5.0", features = ["derive"] }
 digest = "0.10"
 futures = "0.3.30"
 itertools = "0.12.1"
@@ -27,7 +27,7 @@ rand = "0.8.5"
 serde = { version = "1.0", features = ["derive"] }
 tokio = { version = "1", features = ["full"] }
 tokio-stream = "0.1.14"
-toml_edit = { version = "0.22.22", features = ["serde"] }
+toml = "0.8"
 tonic = "0.11.0"
 tonic-reflection = "0.11.0"
 tracing = "0.1"

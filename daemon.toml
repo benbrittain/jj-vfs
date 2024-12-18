@@ -1,0 +1,6 @@
+[grpc]
+addr = "[::1]:10000"
+
+[nfs]
+min_port = 12000
+max_port = 12010

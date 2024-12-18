@@ -530,7 +530,7 @@ dependencies = [
  "nom",
  "pathdiff",
  "serde",
- "toml",
+ "toml 0.5.11",
 ]
 
 [[package]]
@@ -640,6 +640,7 @@ dependencies = [
  "assert_matches",
  "async-trait",
  "blake3",
+ "clap",
  "digest",
  "jj-lib",
  "jj-lib-proc-macros",
@@ -648,8 +649,10 @@ dependencies = [
  "prost",
  "proto",
  "rand",
+ "serde",
  "tokio",
  "tokio-stream",
+ "toml 0.8.19",
  "tonic",
  "tonic-reflection",
  "tracing",
@@ -3275,6 +3278,18 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f4f7f0dd8d50a853a531c426359045b1998f04219d88799810762cd4ad314234"
 dependencies = [
  "serde",
+]
+
+[[package]]
+name = "toml"
+version = "0.8.19"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a1ed1f98e3fdc28d6d910e6737ae6ab1a93bf1985935a1193e68f93eeb68d24e"
+dependencies = [
+ "serde",
+ "serde_spanned",
+ "toml_datetime",
+ "toml_edit",
 ]
 
 [[package]]
