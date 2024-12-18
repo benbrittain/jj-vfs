@@ -34,7 +34,7 @@ async fn main() -> Result<(), anyhow::Error> {
         max_nfs_port: 12010,
     });
 
-    let jj_svc = service::JujutsuService::new(); //vfs_mgr.handle());
+    let jj_svc = service::JujutsuService::new();
 
     let _store = store::Store::new();
 

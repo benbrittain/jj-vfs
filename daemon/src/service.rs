@@ -48,9 +48,8 @@ impl jujutsu_interface_server::JujutsuInterface for JujutsuService {
     #[tracing::instrument(skip(self))]
     async fn read_file(&self, request: Request<FileId>) -> Result<Response<File>, Status> {
         let file_id: Id = request.into_inner().into();
-        let files = self.store.files.lock();
-        let file = files.get(&file_id).unwrap();
-        Ok(Response::new((*file).as_proto()))
+        let file = self.store.get_file(file_id).unwrap();
+        Ok(Response::new(file.as_proto()))
     }
 
     #[tracing::instrument(skip(self))]
@@ -66,9 +65,8 @@ impl jujutsu_interface_server::JujutsuInterface for JujutsuService {
     #[tracing::instrument(skip(self))]
     async fn read_symlink(&self, request: Request<SymlinkId>) -> Result<Response<Symlink>, Status> {
         let symlink_id: Id = request.into_inner().into();
-        let symlinks = self.store.symlinks.lock();
-        let symlink = symlinks.get(&symlink_id).unwrap();
-        Ok(Response::new((*symlink).as_proto()))
+        let symlink = self.store.get_symlink(symlink_id).unwrap();
+        Ok(Response::new(symlink.as_proto()))
     }
 
     #[tracing::instrument(skip(self))]
@@ -81,9 +79,8 @@ impl jujutsu_interface_server::JujutsuInterface for JujutsuService {
     #[tracing::instrument(skip(self))]
     async fn read_tree(&self, request: Request<TreeId>) -> Result<Response<Tree>, Status> {
         let tree_id: Id = request.into_inner().into();
-        let trees = self.store.trees.lock();
-        let tree = trees.get(&tree_id).unwrap();
-        Ok(Response::new((*tree).as_proto()))
+        let tree = self.store.get_tree(tree_id).unwrap();
+        Ok(Response::new(tree.as_proto()))
     }
 
     #[tracing::instrument(skip(self))]
@@ -162,8 +159,6 @@ mod tests {
 
         // No parents
         commit.parents = vec![];
-
-        dbg!(svc.write_commit(Request::new(commit.clone())).await);
 
         assert_matches!(
             svc.write_commit(Request::new(commit.clone())).await,

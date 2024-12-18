@@ -7,31 +7,25 @@ description.workspace = true
 documentation.workspace = true
 
 [dependencies]
-tonic.workspace = true
-tokio.workspace = true
-jj-lib.workspace = true
-jj-lib-proc-macros.workspace = true
-tokio-stream.workspace = true
-proto = { path = "../proto" }
-blake3.workspace = true
-tonic-reflection = "0.11.0"
-anyhow = "1.0.79"
-tempfile = "3.10.0"
-prost.workspace = true
-zstd.workspace = true
-assert_matches = "1.5.0"
-libc = "0.2.153"
-nfsserve.workspace = true
-digest.workspace = true
-tracing.workspace = true
-tracing-subscriber = "0.3"
-tracing-log = "0.2.0"
-itertools = "0.12.1"
-insta = "1.35.1"
-hex = "0.4.3"
-tempdir = "0.3.7"
-walkdir = "2.5.0"
-tracing-test = "0.2.4"
+anyhow.workspace = true
 async-trait.workspace = true
-rand = "0.8.5"
-parking_lot = "0.12.3"
+blake3.workspace = true
+digest.workspace = true
+jj-lib-proc-macros.workspace = true
+jj-lib.workspace = true
+nfsserve.workspace = true
+parking_lot.workspace = true
+prost.workspace = true
+proto = { path = "../proto" }
+rand.workspace = true
+tokio-stream.workspace = true
+tokio.workspace = true
+tonic-reflection.workspace = true
+tonic.workspace = true
+tracing-log.workspace = true
+tracing-subscriber.workspace = true
+tracing.workspace = true
+zstd.workspace = true
+
+[dev-dependencies]
+assert_matches = "1.5.0"

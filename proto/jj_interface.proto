@@ -53,12 +53,6 @@ message GetTreeStateReply {
 }
 
 message GetEmptyTreeIdReq {}
-
-message ConcurrencyRequest {}
-message ConcurrencyReply {
-  int32 estimated_concurrency = 1;
-}
-
 // File
 
 message CheckoutState {

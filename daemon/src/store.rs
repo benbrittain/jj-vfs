@@ -1,11 +1,8 @@
 use std::{collections::HashMap, sync::Arc};
 
-use jj_lib_proc_macros::ContentHash;
 use parking_lot::Mutex;
-use prost::Message;
-use tonic::IntoRequest;
 
-use crate::{hash::blake3, ty::*};
+use crate::ty::*;
 
 /// Stores mount-agnostic information like Trees or Commits. Unaware of filesystem information.
 #[derive(Clone, Debug)]
