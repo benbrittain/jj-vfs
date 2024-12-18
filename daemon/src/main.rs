@@ -28,8 +28,10 @@ struct Args {
 struct Config {
     /// Address the jj CLI connects over
     pub grpc_addr: String,
+    /// local cache
+    pub cache: PathBuf,
     /// NFS configuration
-    pub nfs: NfsConfig
+    pub nfs: NfsConfig,
 }
 
 #[derive(Deserialize, Debug)]

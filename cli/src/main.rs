@@ -2,10 +2,11 @@
 
 use jj_cli::{
     cli_util::{CliRunner, CommandHelper},
-    command_error::CommandError,
+    command_error::{cli_error, user_error_with_message, CommandError},
     ui::Ui,
 };
 use jj_lib::{
+    file_util,
     op_store::WorkspaceId,
     repo::{ReadonlyRepo, StoreFactories},
     signing::Signer,
@@ -20,9 +21,20 @@ use backend::CultivateBackend;
 use jj_lib::{local_working_copy::LocalWorkingCopyFactory, working_copy::WorkingCopyFactory};
 use working_copy::{CultivateWorkingCopy, CultivateWorkingCopyFactory};
 
+/// Create a new repo in the given directory                                                                                                                  
+///                                                                                                                                                           
+/// If the given directory does not exist, it will be created. If no directory                                                                                
+/// is given, the current directory is used.                                                                                                                  
+#[derive(clap::Args, Clone, Debug)]
+pub(crate) struct InitArgs {
+    /// The destination directory
+    #[arg(default_value = ".", value_hint = clap::ValueHint::DirPath)]
+    destination: String,
+}
+
 #[derive(Debug, Clone, clap::Subcommand)]
 enum CultivateCommands {
-    Init,
+    Init(InitArgs),
     Status,
 }
 
@@ -60,22 +72,34 @@ pub fn default_working_copy_factory() -> Box<dyn WorkingCopyFactory> {
 }
 
 fn run_cultivate_command(
-    _ui: &mut Ui,
+    ui: &mut Ui,
     command_helper: &CommandHelper,
     command: CultivateSubcommand,
 ) -> Result<(), CommandError> {
     let CultivateSubcommand::Cultivate(CultivateArgs { command }) = command;
     match command {
         CultivateCommands::Status => todo!(),
-        CultivateCommands::Init => {
-            let wc_path = command_helper.cwd();
+        CultivateCommands::Init(args) => {
+            if command_helper.global_args().ignore_working_copy {
+                return Err(cli_error("--ignore-working-copy is not respected"));
+            }
+            if command_helper.global_args().at_operation.is_some() {
+                return Err(cli_error("--at-op is not respected"));
+            }
+            let cwd = command_helper.cwd();
+            let wc_path = cwd.join(&args.destination);
+            let wc_path = file_util::create_or_reuse_dir(&wc_path)
+                .and_then(|_| wc_path.canonicalize())
+                .map_err(|e| user_error_with_message("Failed to create workspace", e))?;
+
+            let grpc_port = command_helper.settings().get::<usize>("grpc_port").unwrap();
 
             // NOTE: We need to tell the daemon to mount the filesystem BEFORE we
             // initalize the core jj internals or we'll have writes on-disk and on
             // vfs.
-            let client = crate::blocking_client::BlockingJujutsuInterfaceClient::connect(
-                "http://[::1]:10000",
-            )
+            let client = crate::blocking_client::BlockingJujutsuInterfaceClient::connect(format!(
+                "http://[::1]:{grpc_port}"
+            ))
             .unwrap();
             client
                 .initialize(proto::jj_interface::InitializeReq {
@@ -83,10 +107,9 @@ fn run_cultivate_command(
                 })
                 .unwrap();
 
-            assert!(std::env::set_current_dir(wc_path).is_ok());
             Workspace::init_with_factories(
                 command_helper.settings(),
-                wc_path,
+                &wc_path,
                 &|settings, store_path| {
                     let backend = CultivateBackend::new(settings, store_path)?;
                     Ok(Box::new(backend))
@@ -101,7 +124,14 @@ fn run_cultivate_command(
                 &*default_working_copy_factory(),
                 WorkspaceId::default(),
             )?;
-            assert!(std::env::set_current_dir(&wc_path).is_ok());
+
+            let relative_wc_path = file_util::relative_path(cwd, &wc_path);
+            writeln!(
+                ui.status(),
+                "Initialized repo in \"{}\"",
+                relative_wc_path.display()
+            )?;
+
             Ok(())
         }
     }

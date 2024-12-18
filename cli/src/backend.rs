@@ -39,10 +39,15 @@ impl CultivateBackend {
         "cultivate"
     }
 
-    pub fn new(_settings: &UserSettings, _store_path: &Path) -> Result<Self, BackendInitError> {
+    pub fn new(settings: &UserSettings, _store_path: &Path) -> Result<Self, BackendInitError> {
         let root_commit_id = CommitId::from_bytes(&[0; COMMIT_ID_LENGTH]);
         let root_change_id = ChangeId::from_bytes(&[0; CHANGE_ID_LENGTH]);
-        let client = BlockingJujutsuInterfaceClient::connect("http://[::1]:10000").unwrap();
+        let grpc_port = settings.get::<usize>("grpc_port").unwrap();
+
+        let client = crate::blocking_client::BlockingJujutsuInterfaceClient::connect(format!(
+            "http://[::1]:{grpc_port}"
+        ))
+        .unwrap();
         let empty_tree_id =
             TreeId::from_bytes(&client.get_empty_tree_id().unwrap().into_inner().tree_id);
 

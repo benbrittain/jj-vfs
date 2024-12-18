@@ -1,5 +1,5 @@
-[grpc]
-addr = "[::1]:10000"
+remote_addr = "[::1]:23000"
+grpc_addr = "[::1]:12000"
 
 [nfs]
 min_port = 12000

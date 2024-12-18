@@ -5,6 +5,7 @@ authors.workspace = true
 description.workspace = true
 version.workspace = true
 documentation.workspace = true
+autotests = false
 
 [dependencies]
 jj-lib.workspace = true
@@ -19,3 +20,17 @@ tracing.workspace = true
 itertools.workspace = true
 clap.workspace = true
 futures.workspace = true
+
+[[test]]
+name = "runner"
+
+[dev-dependencies]
+jj-cli = { version = "0.24", features = ["test-fakes"], default-features = false }   
+assert_cmd.workspace = true
+assert_matches.workspace = true
+regex.workspace = true
+chrono.workspace = true
+tempdir = "0.3.7"
+tempfile = "3.14.0"
+insta = "1.41.1"
+rand.workspace = true
