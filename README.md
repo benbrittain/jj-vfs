@@ -1,8 +1,6 @@
 jj-vfs
 =======
-An experimental vfs backend for [jj](https://martinvonz.github.io/jj/)
-
-EXPERIMENTAL
+An *experimental* remote backend for the [jj version control tool](https://jj-vcs.github.io/jj/latest/)
 
 ### Architecture
 
@@ -33,6 +31,4 @@ jj vfs ls # List locally mounted repos
 ```
 
 3. Backend
-
 Stores all commit and repo data for all users. 
-
