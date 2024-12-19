@@ -4,9 +4,8 @@ resolver = "2"
 
 [workspace.package]
 authors = ["Benjamin Brittain <ben@brittain.org>"]
-description = "cultivate your code"
+description = "a remote backend for JJ"
 version = "0.0.1"
-documentation = "https://thelastyak.com/cultivate"
 
 [workspace.dependencies]
 anyhow = "1"

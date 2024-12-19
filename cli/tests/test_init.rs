@@ -3,7 +3,7 @@ use crate::common::TestEnvironment;
 #[test]
 fn test_init() {
     let test_env = TestEnvironment::default();
-    let (stdout, stderr) = test_env.jj_cmd_ok(test_env.env_root(), &["cultivate", "init", "repo"]);
+    let (stdout, stderr) = test_env.jj_cmd_ok(test_env.env_root(), &["yak", "init", "repo"]);
     insta::assert_snapshot!(stdout, @"");
     insta::assert_snapshot!(stderr, @r#"Initialized repo in "repo""#);
     let repo_path = test_env.env_root().join("repo");

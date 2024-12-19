@@ -27,16 +27,16 @@ const COMMIT_ID_LENGTH: usize = 32;
 const CHANGE_ID_LENGTH: usize = 16;
 
 #[derive(Debug)]
-pub struct CultivateBackend {
+pub struct YakBackend {
     client: BlockingJujutsuInterfaceClient,
     root_commit_id: CommitId,
     root_change_id: ChangeId,
     empty_tree_id: TreeId,
 }
 
-impl CultivateBackend {
+impl YakBackend {
     pub const fn name() -> &'static str {
-        "cultivate"
+        "yak"
     }
 
     pub fn new(settings: &UserSettings, _store_path: &Path) -> Result<Self, BackendInitError> {
@@ -51,7 +51,7 @@ impl CultivateBackend {
         let empty_tree_id =
             TreeId::from_bytes(&client.get_empty_tree_id().unwrap().into_inner().tree_id);
 
-        Ok(CultivateBackend {
+        Ok(YakBackend {
             client,
             root_commit_id,
             root_change_id,
@@ -61,7 +61,7 @@ impl CultivateBackend {
 }
 
 #[async_trait]
-impl Backend for CultivateBackend {
+impl Backend for YakBackend {
     fn as_any(&self) -> &dyn Any {
         self
     }

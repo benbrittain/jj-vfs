@@ -17,9 +17,9 @@ mod backend;
 mod blocking_client;
 mod working_copy;
 
-use backend::CultivateBackend;
+use backend::YakBackend;
 use jj_lib::{local_working_copy::LocalWorkingCopyFactory, working_copy::WorkingCopyFactory};
-use working_copy::{CultivateWorkingCopy, CultivateWorkingCopyFactory};
+use working_copy::{YakWorkingCopy, YakWorkingCopyFactory};
 
 /// Create a new repo in the given directory                                                                                                                  
 ///                                                                                                                                                           
@@ -33,7 +33,7 @@ pub(crate) struct InitArgs {
 }
 
 #[derive(Debug, Clone, clap::Subcommand)]
-enum CultivateCommands {
+enum YakCommands {
     Init(InitArgs),
     Status,
 }
@@ -41,15 +41,15 @@ enum CultivateCommands {
 #[derive(Debug, Clone, clap::Args)]
 #[command(args_conflicts_with_subcommands = true)]
 #[command(flatten_help = true)]
-struct CultivateArgs {
+struct YakArgs {
     #[command(subcommand)]
-    command: CultivateCommands,
+    command: YakCommands,
 }
 
 #[derive(clap::Parser, Clone, Debug)]
-enum CultivateSubcommand {
+enum YakSubcommand {
     /// Commands for working with the cultivation daemon
-    Cultivate(CultivateArgs),
+    Yak(YakArgs),
 }
 
 fn create_store_factories() -> StoreFactories {
@@ -57,11 +57,9 @@ fn create_store_factories() -> StoreFactories {
     // Register the backend so it can be loaded when the repo is loaded. The name
     // must match `Backend::name()`.
     store_factories.add_backend(
-        "cultivate",
+        "yak",
         Box::new(|settings, store_path| {
-            Ok(Box::new(
-                CultivateBackend::new(settings, store_path).unwrap(),
-            ))
+            Ok(Box::new(YakBackend::new(settings, store_path).unwrap()))
         }),
     );
     store_factories
@@ -71,15 +69,15 @@ pub fn default_working_copy_factory() -> Box<dyn WorkingCopyFactory> {
     Box::new(LocalWorkingCopyFactory {})
 }
 
-fn run_cultivate_command(
+fn run_yak_command(
     ui: &mut Ui,
     command_helper: &CommandHelper,
-    command: CultivateSubcommand,
+    command: YakSubcommand,
 ) -> Result<(), CommandError> {
-    let CultivateSubcommand::Cultivate(CultivateArgs { command }) = command;
+    let YakSubcommand::Yak(YakArgs { command }) = command;
     match command {
-        CultivateCommands::Status => todo!(),
-        CultivateCommands::Init(args) => {
+        YakCommands::Status => todo!(),
+        YakCommands::Init(args) => {
             if command_helper.global_args().ignore_working_copy {
                 return Err(cli_error("--ignore-working-copy is not respected"));
             }
@@ -111,7 +109,7 @@ fn run_cultivate_command(
                 command_helper.settings(),
                 &wc_path,
                 &|settings, store_path| {
-                    let backend = CultivateBackend::new(settings, store_path)?;
+                    let backend = YakBackend::new(settings, store_path)?;
                     Ok(Box::new(backend))
                 },
                 Signer::from_settings(command_helper.settings())
@@ -120,7 +118,7 @@ fn run_cultivate_command(
                 ReadonlyRepo::default_op_heads_store_initializer(),
                 ReadonlyRepo::default_index_store_initializer(),
                 ReadonlyRepo::default_submodule_store_initializer(),
-                //&CultivateWorkingCopyFactory {},
+                //&YakWorkingCopyFactory {},
                 &*default_working_copy_factory(),
                 WorkspaceId::default(),
             )?;
@@ -140,14 +138,14 @@ fn run_cultivate_command(
 fn main() -> std::process::ExitCode {
     let mut working_copy_factories = WorkingCopyFactories::new();
     working_copy_factories.insert(
-        CultivateWorkingCopy::name().to_owned(),
-        Box::new(CultivateWorkingCopyFactory {}),
+        YakWorkingCopy::name().to_owned(),
+        Box::new(YakWorkingCopyFactory {}),
     );
     // NOTE: logging before this point will not work since it is
     // initialized by CliRunner.
     CliRunner::init()
         .add_store_factories(create_store_factories())
         .add_working_copy_factories(working_copy_factories)
-        .add_subcommand(run_cultivate_command)
+        .add_subcommand(run_yak_command)
         .run()
 }

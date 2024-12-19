@@ -18,9 +18,9 @@ use tracing::{info, warn};
 
 use crate::blocking_client::BlockingJujutsuInterfaceClient;
 
-pub struct CultivateWorkingCopyFactory {}
+pub struct YakWorkingCopyFactory {}
 
-impl WorkingCopyFactory for CultivateWorkingCopyFactory {
+impl WorkingCopyFactory for YakWorkingCopyFactory {
     fn init_working_copy(
         &self,
         store: Arc<Store>,
@@ -29,7 +29,7 @@ impl WorkingCopyFactory for CultivateWorkingCopyFactory {
         operation_id: OperationId,
         workspace_id: WorkspaceId,
     ) -> Result<Box<dyn WorkingCopy>, WorkingCopyStateError> {
-        Ok(Box::new(CultivateWorkingCopy::init(
+        Ok(Box::new(YakWorkingCopy::init(
             store,
             working_copy_path,
             operation_id,
@@ -43,14 +43,11 @@ impl WorkingCopyFactory for CultivateWorkingCopyFactory {
         working_copy_path: PathBuf,
         _state_path: PathBuf,
     ) -> Result<Box<dyn WorkingCopy + 'static>, WorkingCopyStateError> {
-        Ok(Box::new(CultivateWorkingCopy::load(
-            store,
-            working_copy_path,
-        )))
+        Ok(Box::new(YakWorkingCopy::load(store, working_copy_path)))
     }
 }
 
-pub struct CultivateWorkingCopy {
+pub struct YakWorkingCopy {
     store: Arc<Store>,
     working_copy_path: PathBuf,
     client: BlockingJujutsuInterfaceClient,
@@ -59,9 +56,9 @@ pub struct CultivateWorkingCopy {
     tree_state: OnceCell<TreeState>,
 }
 
-impl CultivateWorkingCopy {
+impl YakWorkingCopy {
     pub fn name() -> &'static str {
-        "cultivate"
+        "yak"
     }
 
     fn init(
@@ -80,7 +77,7 @@ impl CultivateWorkingCopy {
                 }),
             })
             .unwrap();
-        Ok(CultivateWorkingCopy {
+        Ok(YakWorkingCopy {
             store,
             working_copy_path,
             client,
@@ -91,7 +88,7 @@ impl CultivateWorkingCopy {
 
     fn load(store: Arc<Store>, working_copy_path: PathBuf) -> Self {
         let client = BlockingJujutsuInterfaceClient::connect("http://[::1]:10000").unwrap();
-        CultivateWorkingCopy {
+        YakWorkingCopy {
             store,
             working_copy_path,
             client,
@@ -118,7 +115,7 @@ impl TreeState {
     }
 }
 
-impl CultivateWorkingCopy {
+impl YakWorkingCopy {
     fn get_tree_state<'a>(&'a self) -> &'a TreeState {
         self.tree_state.get_or_init(|| {
             let tree_state = self
@@ -186,7 +183,7 @@ impl DaemonLock {
     }
 }
 
-impl WorkingCopy for CultivateWorkingCopy {
+impl WorkingCopy for YakWorkingCopy {
     fn as_any(&self) -> &dyn Any {
         self
     }
@@ -214,7 +211,7 @@ impl WorkingCopy for CultivateWorkingCopy {
     fn start_mutation(&self) -> Result<Box<dyn LockedWorkingCopy>, WorkingCopyStateError> {
         info!("Starting mutation");
         let lock = self.get_working_copy_lock();
-        let wc = CultivateWorkingCopy {
+        let wc = YakWorkingCopy {
             client: self.client.clone(),
             store: self.store.clone(),
             working_copy_path: self.working_copy_path.clone(),
@@ -223,7 +220,7 @@ impl WorkingCopy for CultivateWorkingCopy {
         };
         let old_operation_id = wc.operation_id().clone();
         let old_tree_id = wc.tree_id()?.clone();
-        Ok(Box::new(LockedCultivateWorkingCopy {
+        Ok(Box::new(LockedYakWorkingCopy {
             wc,
             lock,
             old_operation_id,
@@ -232,15 +229,15 @@ impl WorkingCopy for CultivateWorkingCopy {
     }
 }
 
-struct LockedCultivateWorkingCopy {
-    wc: CultivateWorkingCopy,
+struct LockedYakWorkingCopy {
+    wc: YakWorkingCopy,
     #[allow(dead_code)]
     lock: DaemonLock,
     old_operation_id: OperationId,
     old_tree_id: MergedTreeId,
 }
 
-impl LockedWorkingCopy for LockedCultivateWorkingCopy {
+impl LockedWorkingCopy for LockedYakWorkingCopy {
     fn as_any(&self) -> &dyn Any {
         self
     }
