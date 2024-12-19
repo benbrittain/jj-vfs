@@ -48,7 +48,7 @@ struct YakArgs {
 
 #[derive(clap::Parser, Clone, Debug)]
 enum YakSubcommand {
-    /// Commands for working with the cultivation daemon
+    /// Commands for working with the yak daemon
     Yak(YakArgs),
 }
 
