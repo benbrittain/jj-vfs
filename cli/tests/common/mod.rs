@@ -11,6 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#![allow(warnings)]
 
 use std::{
     cell::RefCell,
@@ -18,7 +19,6 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use itertools::Itertools as _;
 use rand::{thread_rng, Rng};
 use regex::{Captures, Regex};
 use tempdir::TempDir;
@@ -42,10 +42,11 @@ pub struct TestEnvironment {
 
 impl Drop for TestEnvironment {
     fn drop(&mut self) {
+        // TODO maybe make retaining an env a option in the testing harness
+
         //let mut other = TempDir::new("").unwrap();
         //std::mem::swap(&mut self._temp_dir, &mut other);
         //std::mem::forget(other);
-
         self.daemon_child
             .kill()
             .expect("Failed to kill daemon process")
@@ -82,7 +83,6 @@ impl Default for TestEnvironment {
         let daemon_child = command
             .spawn()
             .expect("Failed to start daemon for integration test");
-        std::thread::sleep(std::time::Duration::from_millis(100));
 
         let env_vars = HashMap::new();
         let env = Self {
