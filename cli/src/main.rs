@@ -21,10 +21,9 @@ use backend::YakBackend;
 use jj_lib::{local_working_copy::LocalWorkingCopyFactory, working_copy::WorkingCopyFactory};
 use working_copy::{YakWorkingCopy, YakWorkingCopyFactory};
 
-/// Create a new repo in the given directory                                                                                                                  
-///                                                                                                                                                           
-/// If the given directory does not exist, it will be created. If no directory                                                                                
-/// is given, the current directory is used.                                                                                                                  
+/// Create a new repo in the given directory
+/// If the given directory does not exist, it will be created. If no directory
+/// is given, the current directory is used.
 #[derive(clap::Args, Clone, Debug)]
 pub(crate) struct InitArgs {
     /// The destination directory
@@ -75,8 +74,24 @@ fn run_yak_command(
     command: YakSubcommand,
 ) -> Result<(), CommandError> {
     let YakSubcommand::Yak(YakArgs { command }) = command;
+
+    let grpc_port = command_helper.settings().get::<usize>("grpc_port").unwrap();
+    let client = crate::blocking_client::BlockingJujutsuInterfaceClient::connect(format!(
+        "http://[::1]:{grpc_port}"
+    ))
+    .unwrap();
     match command {
-        YakCommands::Status => todo!(),
+        YakCommands::Status => {
+            let resp = client
+                .daemon_status(proto::jj_interface::DaemonStatusReq {})
+                .unwrap();
+            ui.request_pager();
+            let mut formatter = ui.stdout_formatter();
+            for data in resp.into_inner().data {
+                writeln!(formatter, "{}", data.path)?;
+            }
+            Ok(())
+        }
         YakCommands::Init(args) => {
             if command_helper.global_args().ignore_working_copy {
                 return Err(cli_error("--ignore-working-copy is not respected"));
@@ -90,15 +105,9 @@ fn run_yak_command(
                 .and_then(|_| wc_path.canonicalize())
                 .map_err(|e| user_error_with_message("Failed to create workspace", e))?;
 
-            let grpc_port = command_helper.settings().get::<usize>("grpc_port").unwrap();
-
             // NOTE: We need to tell the daemon to mount the filesystem BEFORE we
             // initalize the core jj internals or we'll have writes on-disk and on
             // vfs.
-            let client = crate::blocking_client::BlockingJujutsuInterfaceClient::connect(format!(
-                "http://[::1]:{grpc_port}"
-            ))
-            .unwrap();
             client
                 .initialize(proto::jj_interface::InitializeReq {
                     path: wc_path.as_os_str().to_str().unwrap().to_string(),

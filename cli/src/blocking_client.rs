@@ -31,6 +31,15 @@ impl BlockingJujutsuInterfaceClient {
         Ok(Self { client, rt })
     }
 
+    pub fn daemon_status(
+        &self,
+        request: impl tonic::IntoRequest<DaemonStatusReq>,
+    ) -> Result<tonic::Response<DaemonStatusReply>, tonic::Status> {
+        let mut client = self.client.lock().unwrap();
+        let rt = self.rt.lock().unwrap();
+        rt.block_on(client.daemon_status(request))
+    }
+
     pub fn get_tree_state(
         &self,
         request: impl tonic::IntoRequest<GetTreeStateReq>,

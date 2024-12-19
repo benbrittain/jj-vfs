@@ -1,4 +1,7 @@
+use std::{collections::HashMap, sync::Arc};
+
 use proto::jj_interface::*;
+use tokio::sync::Mutex;
 use tonic::{Request, Response, Status};
 use tracing::info;
 
@@ -6,12 +9,14 @@ use crate::{store::Store, ty::Id};
 
 pub struct JujutsuService {
     store: Store,
+    sessions: Arc<Mutex<Vec<String>>>,
 }
 
 impl JujutsuService {
     pub fn new() -> jujutsu_interface_server::JujutsuInterfaceServer<Self> {
         jujutsu_interface_server::JujutsuInterfaceServer::new(JujutsuService {
             store: Store::new(),
+            sessions: Arc::new(Mutex::new(vec![])),
         })
     }
 }
@@ -24,8 +29,25 @@ impl jujutsu_interface_server::JujutsuInterface for JujutsuService {
         request: Request<InitializeReq>,
     ) -> Result<Response<InitializeReply>, Status> {
         let req = request.into_inner();
-        info!("Initializing a new repo at {}", req.path);
+        info!("Initializing a new repo at {}", &req.path);
+        let mut sessions = self.sessions.lock().await;
+        sessions.push(req.path);
         Ok(Response::new(InitializeReply {}))
+    }
+
+    #[tracing::instrument(skip(self))]
+    async fn daemon_status(
+        &self,
+        request: Request<DaemonStatusReq>,
+    ) -> Result<Response<DaemonStatusReply>, Status> {
+        let _req = request.into_inner();
+        let sessions = self.sessions.lock().await;
+        let data = sessions
+            .clone()
+            .into_iter()
+            .map(|sess| proto::jj_interface::daemon_status_reply::Data { path: sess })
+            .collect();
+        Ok(Response::new(DaemonStatusReply { data }))
     }
 
     #[tracing::instrument(skip(self))]
@@ -154,6 +176,7 @@ mod tests {
     async fn write_commit_parents() {
         let svc = JujutsuService {
             store: Store::new(),
+            sessions: Arc::new(Mutex::new(vec![])),
         };
         let mut commit = Commit::default();
 

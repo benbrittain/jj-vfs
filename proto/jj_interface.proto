@@ -6,6 +6,8 @@ service JujutsuInterface {
   // Initalize a new repository
   rpc Initialize(InitializeReq) returns (InitializeReply) {}
 
+  rpc DaemonStatus(DaemonStatusReq) returns (DaemonStatusReply) {}
+
   // Working copy related calls
   rpc SetCheckoutState(SetCheckoutStateReq) returns (SetCheckoutStateReply) {}
   rpc GetCheckoutState(GetCheckoutStateReq) returns (CheckoutState) {}
@@ -30,6 +32,16 @@ service JujutsuInterface {
   rpc ReadCommit(CommitId) returns (Commit) {}
 }
 
+
+message DaemonStatusReq {
+}
+
+message DaemonStatusReply {
+  message Data {
+    string path = 1;
+  }
+  repeated Data data = 1;
+}
 
 message InitializeReq {
   string path = 1;
