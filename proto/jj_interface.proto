@@ -39,12 +39,14 @@ message DaemonStatusReq {
 message DaemonStatusReply {
   message Data {
     string path = 1;
+    string remote = 2;
   }
   repeated Data data = 1;
 }
 
 message InitializeReq {
   string path = 1;
+  string remote = 2;
 }
 
 message InitializeReply {}

@@ -3062,6 +3062,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "server"
+version = "0.0.1"
+
+[[package]]
 name = "sha1_smol"
 version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"

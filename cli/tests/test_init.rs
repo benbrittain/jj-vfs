@@ -3,7 +3,8 @@ use crate::common::TestEnvironment;
 #[test]
 fn test_init() {
     let test_env = TestEnvironment::default();
-    let (stdout, stderr) = test_env.jj_cmd_ok(test_env.env_root(), &["yak", "init", "repo"]);
+    let (stdout, stderr) =
+        test_env.jj_cmd_ok(test_env.env_root(), &["yak", "init", "localhost", "repo"]);
     insta::assert_snapshot!(stdout, @"");
     insta::assert_snapshot!(stderr, @r#"Initialized repo in "repo""#);
     let repo_path = test_env.env_root().join("repo");
@@ -19,12 +20,14 @@ fn test_init() {
 #[test]
 fn test_multiple_init() {
     let test_env = TestEnvironment::default();
-    let (stdout, stderr) = test_env.jj_cmd_ok(test_env.env_root(), &["yak", "init", "repo1"]);
+    let (stdout, stderr) =
+        test_env.jj_cmd_ok(test_env.env_root(), &["yak", "init", "localhost", "repo1"]);
     insta::assert_snapshot!(stdout, @"");
     insta::assert_snapshot!(stderr, @r#"Initialized repo in "repo1""#);
     let repo1_path = test_env.env_root().join("repo1");
 
-    let (stdout, stderr) = test_env.jj_cmd_ok(test_env.env_root(), &["yak", "init", "repo2"]);
+    let (stdout, stderr) =
+        test_env.jj_cmd_ok(test_env.env_root(), &["yak", "init", "localhost", "repo2"]);
     insta::assert_snapshot!(stdout, @"");
     insta::assert_snapshot!(stderr, @r#"Initialized repo in "repo2""#);
     let repo2_path = test_env.env_root().join("repo2");
@@ -45,20 +48,22 @@ fn test_multiple_init() {
 
     let stdout = test_env.jj_cmd_success(&repo2_path, &["yak", "status"]);
     insta::assert_snapshot!(stdout, @r"
-    $TEST_ENV/repo1
-    $TEST_ENV/repo2
+    $TEST_ENV/repo1 - localhost
+    $TEST_ENV/repo2 - localhost
     ");
 }
 
 #[test]
 fn test_repos_are_independent() {
     let test_env = TestEnvironment::default();
-    let (stdout, stderr) = test_env.jj_cmd_ok(test_env.env_root(), &["yak", "init", "repo1"]);
+    let (stdout, stderr) =
+        test_env.jj_cmd_ok(test_env.env_root(), &["yak", "init", "localhost", "repo1"]);
     insta::assert_snapshot!(stdout, @"");
     insta::assert_snapshot!(stderr, @r#"Initialized repo in "repo1""#);
     let repo1_path = test_env.env_root().join("repo1");
 
-    let (stdout, stderr) = test_env.jj_cmd_ok(test_env.env_root(), &["yak", "init", "repo2"]);
+    let (stdout, stderr) =
+        test_env.jj_cmd_ok(test_env.env_root(), &["yak", "init", "localhost", "repo2"]);
     insta::assert_snapshot!(stdout, @"");
     insta::assert_snapshot!(stderr, @r#"Initialized repo in "repo2""#);
     let repo2_path = test_env.env_root().join("repo2");
@@ -89,7 +94,7 @@ fn test_repos_are_independent() {
 
     let stdout = test_env.jj_cmd_success(&repo2_path, &["yak", "status"]);
     insta::assert_snapshot!(stdout, @r"
-    $TEST_ENV/repo1
-    $TEST_ENV/repo2
+    $TEST_ENV/repo1 - localhost
+    $TEST_ENV/repo2 - localhost
     ");
 }

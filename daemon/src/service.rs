@@ -7,9 +7,15 @@ use tracing::info;
 
 use crate::{store::Store, ty::Id};
 
+#[derive(Clone)]
+struct Session {
+    remote: String,
+    path: String,
+}
+
 pub struct JujutsuService {
     store: Store,
-    sessions: Arc<Mutex<Vec<String>>>,
+    sessions: Arc<Mutex<Vec<Session>>>,
 }
 
 impl JujutsuService {
@@ -29,9 +35,15 @@ impl jujutsu_interface_server::JujutsuInterface for JujutsuService {
         request: Request<InitializeReq>,
     ) -> Result<Response<InitializeReply>, Status> {
         let req = request.into_inner();
-        info!("Initializing a new repo at {}", &req.path);
+        info!(
+            "Initializing a new repo at {} for {}",
+            &req.path, &req.remote
+        );
         let mut sessions = self.sessions.lock().await;
-        sessions.push(req.path);
+        sessions.push(Session {
+            remote: req.remote,
+            path: req.path,
+        });
         Ok(Response::new(InitializeReply {}))
     }
 
@@ -45,7 +57,10 @@ impl jujutsu_interface_server::JujutsuInterface for JujutsuService {
         let data = sessions
             .clone()
             .into_iter()
-            .map(|sess| proto::jj_interface::daemon_status_reply::Data { path: sess })
+            .map(|sess| proto::jj_interface::daemon_status_reply::Data {
+                path: sess.path,
+                remote: sess.remote,
+            })
             .collect();
         Ok(Response::new(DaemonStatusReply { data }))
     }

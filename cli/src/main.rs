@@ -27,6 +27,10 @@ use working_copy::{YakWorkingCopy, YakWorkingCopyFactory};
 #[derive(clap::Args, Clone, Debug)]
 pub(crate) struct InitArgs {
     /// The destination directory
+    #[arg(value_hint = clap::ValueHint::Url)]
+    remote: String,
+
+    /// The destination directory
     #[arg(default_value = ".", value_hint = clap::ValueHint::DirPath)]
     destination: String,
 }
@@ -87,8 +91,8 @@ fn run_yak_command(
                 .unwrap();
             ui.request_pager();
             let mut formatter = ui.stdout_formatter();
-            for data in resp.into_inner().data {
-                writeln!(formatter, "{}", data.path)?;
+            for session in resp.into_inner().data {
+                writeln!(formatter, "{} - {}", session.path, session.remote)?;
             }
             Ok(())
         }
@@ -110,6 +114,7 @@ fn run_yak_command(
             // vfs.
             client
                 .initialize(proto::jj_interface::InitializeReq {
+                    remote: args.remote,
                     path: wc_path.as_os_str().to_str().unwrap().to_string(),
                 })
                 .unwrap();
